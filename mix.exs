@@ -14,7 +14,7 @@ defmodule Excalt.MixProject do
       docs: [
         source_ref: "v#{@version}",
         main: "MIME",
-        source_url: "https://github.com/Advite/excalt"
+        source_url: "https://github.com/MigaduMail/excalt"
       ]
     ]
   end
@@ -23,7 +23,7 @@ defmodule Excalt.MixProject do
     [
       maintainers: ["swerter", "Michael Bruderer"],
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/Advite/excalt"}
+      links: %{"GitHub" => "https://github.com/MigaduMail/excalt"}
     ]
   end
 
