@@ -11,11 +11,8 @@ defmodule Excalt.MixProject do
       name: "Excalt",
       package: package(),
       deps: deps(),
-      docs: [
-        source_ref: "v#{@version}",
-        main: "MIME",
-        source_url: "https://github.com/MigaduMail/excalt"
-      ]
+      docs: docs(),
+      source_url: "https://github.com/MigaduMail/excalt"
     ]
   end
 
@@ -39,11 +36,23 @@ defmodule Excalt.MixProject do
     "Another CalDav client library"
   end
 
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md"],
+      source_ref: "v#{@version}"
+    ]
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:saxy, "~> 1.5"},
       {:finch, "~> 0.13"},
+      {:tzdata, "~> 1.1"},
+      { :elixir_uuid, "~> 1.2" },
+      {:exicalend, path: "../exicalend"},
       {:ex_doc, ">= 0.29.0", only: :dev, runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false}
