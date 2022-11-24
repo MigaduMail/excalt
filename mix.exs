@@ -1,10 +1,12 @@
 defmodule Excalt.MixProject do
   use Mix.Project
 
+  @version "0.1.1"
+
   def project do
     [
       app: :excalt,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -36,7 +38,6 @@ defmodule Excalt.MixProject do
     "Another CalDav client library"
   end
 
-
   defp docs do
     [
       main: "readme",
@@ -51,7 +52,7 @@ defmodule Excalt.MixProject do
       {:saxy, "~> 1.5"},
       {:finch, "~> 0.13"},
       {:tzdata, "~> 1.1"},
-      { :elixir_uuid, "~> 1.2" },
+      {:elixir_uuid, "~> 1.2"},
       {:exicalend, path: "../exicalend"},
       {:ex_doc, ">= 0.29.0", only: :dev, runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
