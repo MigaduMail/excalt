@@ -5,7 +5,6 @@ defmodule Excalt.Todo do
           etag: String.t()
         }
   defstruct icalendar: nil,
-            icalendar: nil,
             url: nil,
             etag: nil
 end

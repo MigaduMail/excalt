@@ -52,7 +52,6 @@ defmodule Excalt.MixProject do
       {:saxy, "~> 1.5"},
       {:finch, "~> 0.14"},
       {:tzdata, "~> 1.1"},
-      {:elixir_uuid, "~> 1.2"},
       {:ex_doc, ">= 0.29.1", only: :dev, runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false}
