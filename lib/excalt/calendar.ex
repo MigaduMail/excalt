@@ -52,6 +52,13 @@ defmodule Excalt.Calendar do
 
       {:ok,
        %Finch.Response{
+         status: 401,
+         body: body
+       }} ->
+        {:error, :wrong_credentials}
+
+      {:ok,
+       %Finch.Response{
          status: 404,
          body: body
        }} ->
@@ -63,7 +70,7 @@ defmodule Excalt.Calendar do
   Returns the parsed xml of the calendars for a user from the CalDav server.
   """
   @spec list!(server_url :: String.t(), username :: String.t(), password :: String.t()) ::
-          {:ok, xml :: String.t()} | {:error, any()}
+          [t()]
   def list!(server_url, username, password) do
     {:ok, xml_text} = list_raw(server_url, username, password)
     Excalt.XML.Parser.parse_calendars!(xml_text)
