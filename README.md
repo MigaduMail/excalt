@@ -4,21 +4,20 @@ Excalt allows you to communicate with a CalDav server using the xml structure as
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+The package [available in Hex](https://hex.pm/packages/excalt) and can be installed
 by adding `excalt` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:excalt, "~> 0.1.0"}
+    {:excalt, "~> 0.1.1"}
   ]
 end
 ```
 Then run `mix deps.get` to install the package and its dependencies.
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/excalt>.
+### Documentation
+Documentation can be found at <https://hexdocs.pm/excalt>.
 
 ## Documentation
 
