@@ -43,8 +43,7 @@ defmodule Excalt.XML.Builder do
           ),
           Saxy.XML.element("C:filter", [], [
             Saxy.XML.element("C:comp-filter", [name: "VCALENDAR"], [
-              Saxy.XML.element("C:comp-filter", [name: "VEVENT"], [
-              ])
+              Saxy.XML.element("C:comp-filter", [name: "VEVENT"], [])
             ])
           ])
         ]
@@ -52,7 +51,6 @@ defmodule Excalt.XML.Builder do
 
     Saxy.encode!(el, [])
   end
-
 
   def event_list(from, to) do
     el =
