@@ -53,6 +53,9 @@ defmodule Excalt.MixProject do
       {:finch, "~> 0.14"},
       {:tzdata, "~> 1.1"},
       {:ex_doc, ">= 0.29.1", only: :dev, runtime: false},
+      {:elixir_uuid, "~> 1.2"},
+      # {:naiveical, "~> 0.1.1"},
+      {:naiveical, path: "../naiveical"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false}
     ]
