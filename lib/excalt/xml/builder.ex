@@ -54,34 +54,59 @@ defmodule Excalt.XML.Builder do
 
   def event_list(from, to) do
     el =
-      Saxy.XML.element(
-        "C:calendar-query",
-        [
-          "xmlns:D": "DAV:",
-          "xmlns:C": "urn:ietf:params:xml:ns:caldav"
-        ],
-        [
-          Saxy.XML.element(
-            "D:prop",
-            [],
-            [
-              Saxy.XML.element("D:getetag", [], ""),
-              Saxy.XML.element("C:calendar-data", [], "")
-            ]
-          ),
-          Saxy.XML.element("C:filter", [], [
-            Saxy.XML.element("C:comp-filter", [name: "VCALENDAR"], [
-              Saxy.XML.element("C:comp-filter", [name: "VEVENT"], [
-                Saxy.XML.element(
-                  "C:time-range",
-                  [start: format_datetime(from), end: format_datetime(to)],
-                  ""
-                )
+      if is_nil(from) or is_nil(to) do
+        Saxy.XML.element(
+          "C:calendar-query",
+          [
+            "xmlns:D": "DAV:",
+            "xmlns:C": "urn:ietf:params:xml:ns:caldav"
+          ],
+          [
+            Saxy.XML.element(
+              "D:prop",
+              [],
+              [
+                Saxy.XML.element("D:getetag", [], ""),
+                Saxy.XML.element("C:calendar-data", [], "")
+              ]
+            ),
+            Saxy.XML.element("C:filter", [], [
+              Saxy.XML.element("C:comp-filter", [name: "VCALENDAR"], [
+                Saxy.XML.element("C:comp-filter", [name: "VEVENT"], [])
               ])
             ])
-          ])
-        ]
-      )
+          ]
+        )
+      else
+        Saxy.XML.element(
+          "C:calendar-query",
+          [
+            "xmlns:D": "DAV:",
+            "xmlns:C": "urn:ietf:params:xml:ns:caldav"
+          ],
+          [
+            Saxy.XML.element(
+              "D:prop",
+              [],
+              [
+                Saxy.XML.element("D:getetag", [], ""),
+                Saxy.XML.element("C:calendar-data", [], "")
+              ]
+            ),
+            Saxy.XML.element("C:filter", [], [
+              Saxy.XML.element("C:comp-filter", [name: "VCALENDAR"], [
+                Saxy.XML.element("C:comp-filter", [name: "VEVENT"], [
+                  Saxy.XML.element(
+                    "C:time-range",
+                    [start: format_datetime(from), end: format_datetime(to)],
+                    ""
+                  )
+                ])
+              ])
+            ])
+          ]
+        )
+      end
 
     Saxy.encode!(el, [])
   end
