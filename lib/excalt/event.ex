@@ -18,6 +18,20 @@ defmodule Excalt.Event do
           server_url :: String.t(),
           username :: String.t(),
           password :: String.t(),
+          calendar_name :: String.t()
+        ) ::
+          {:ok, xml :: String.t()} | {:error, any()}
+  def list_raw(server_url, username, password, calendar_name) do
+    list_raw(server_url, username, password, calendar_name, nil, nil)
+  end
+
+  @doc """
+  Fetches the raw xml of the events for a user and a time duration from the CalDav server.
+  """
+  @spec list_raw(
+          server_url :: String.t(),
+          username :: String.t(),
+          password :: String.t(),
           calendar_name :: String.t(),
           from :: DateTime.t(),
           to :: DateTime.t()
@@ -28,6 +42,10 @@ defmodule Excalt.Event do
 
     req_body = Excalt.XML.Builder.event_list(from, to)
     req_url = Excalt.Request.UrlHelper.build_url(server_url, username, calendar_name)
+
+    IO.inspect req_url: req_url
+    IO.inspect req_body: req_body
+
 
     finch_req =
       Finch.build(
@@ -40,7 +58,9 @@ defmodule Excalt.Event do
         req_body
       )
 
-    case Finch.request(finch_req, ExcaltFinch) do
+    case Finch.request(finch_req, ExcaltFinch)
+    # |> IO.inspect
+      do
       {:ok,
        %Finch.Response{
          status: 207,
@@ -68,7 +88,25 @@ defmodule Excalt.Event do
          body: body
        }} ->
         {:error, :not_found}
+
+        {:error, :not_found} ->
+        {:error, :not_found}
+
     end
+  end
+
+  @doc """
+  Returns the parsed xml of the calendars for a user from the CalDav server.
+  """
+  @spec list!(
+          server_url :: String.t(),
+          username :: String.t(),
+          password :: String.t(),
+          calendar_name :: String.t()
+        ) :: [t()]
+  def list!(server_url, username, password, calendar_name) do
+    {:ok, xml_text} = list_raw(server_url, username, password, calendar_name)
+    Excalt.XML.Parser.parse_events!(xml_text)
   end
 
   @doc """
@@ -254,6 +292,60 @@ defmodule Excalt.Event do
     finch_req =
       Finch.build(
         "PUT",
+        req_url <> "/#{uuid}.ical",
+        [
+          {"Authorization", auth_header_content}
+        ],
+        req_body
+      )
+
+    IO.inspect(finch_req: finch_req)
+
+    case Finch.request(finch_req, ExcaltFinch) do
+      {:ok,
+       %Finch.Response{
+         status: 201,
+         body: body
+       }} ->
+        {:ok, body}
+
+      {:ok,
+       %Finch.Response{
+         status: 204,
+         body: body
+       }} ->
+        {:ok, body}
+
+      {:ok,
+       %Finch.Response{
+         status: 404,
+         body: body
+       }} ->
+        {:error, :not_found}
+    end
+  end
+  @doc """
+  Updates a single event, given an uid of the event, the new version, and the etag.
+  Will throw an error, if the etag has changed in the meantime.
+  (see [RFC 4791, section 7.8.1](https://tools.ietf.org/html/rfc4791#section-7.8.9)).
+  """
+  @spec get(
+          server_url :: String.t(),
+          username :: String.t(),
+          password :: String.t(),
+          calendar_name :: String.t(),
+          uuid :: String.t(),
+          opts :: keyword()
+        ) :: {:ok, [t()]} | {:error, any()}
+  def get(server_url, username, password, calendar_name, uuid, opts \\ []) do
+    auth_header_content = "Basic " <> Base.encode64("#{username}:#{password}")
+
+    req_body = ""
+    req_url = Excalt.Request.UrlHelper.build_url(server_url, username, calendar_name)
+
+    finch_req =
+      Finch.build(
+        "GET",
         req_url <> "/#{uuid}.ical",
         [
           {"Authorization", auth_header_content}
