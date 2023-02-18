@@ -3,10 +3,12 @@ defmodule Excalt.XML.Builder do
   Builds the xml used to query the caldav server.
   """
 
-  import Saxy.XML
-
+  @doc """
+  Builds the XML request for listing calendar collections on calendar server.
+  It requests description, timezone, displayname, supported components of the calendar collection (VEVENT, VTODO, VJOURNALS etc..).
+  """
+  @spec calendar_list() :: String.t()
   def calendar_list do
-    el =
       Saxy.XML.element(
         "D:propfind",
         [
@@ -20,10 +22,15 @@ defmodule Excalt.XML.Builder do
           Saxy.XML.element("C:calendar-timezone", [], "")
         ])
       )
+      |> Saxy.encode!([])
 
-    Saxy.encode!(el, [])
   end
 
+  @doc """
+  Builds XML request for listing events from a calendar collections.
+  Gets only the VEVENT in VCALENDAR object.
+  """
+  @spec event_list() :: String.t()
   def event_list() do
     el =
       Saxy.XML.element(
