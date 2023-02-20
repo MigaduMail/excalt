@@ -61,7 +61,7 @@ defmodule Excalt.Vcard.Contact do
          {:ok, body}
 
 
-       {:ok, %Finch.Reponse{status: 404, body: body}} ->
+       {:ok, %Finch.Response{status: 404, body: body}} ->
          {:error, :not_found}
 
        {:ok, %Finch.Response{status: status, body: body}} ->
@@ -70,7 +70,7 @@ defmodule Excalt.Vcard.Contact do
      end
     end
 
-  def delete(server_url, username, password, addresbook_name, contact_uuid) do
+  def delete(server_url, username, password, addressbook_name, contact_uuid) do
     authentication = Excalt.Vcard.Addressbook.build_authentication_header(username, password)
     req_url = Excalt.Vcard.UrlHelper.build_url(server_url, username, addressbook_name)
     req_url = "#{req_url}" <> "/" <> "#{contact_uuid}.vcf"
@@ -81,7 +81,7 @@ defmodule Excalt.Vcard.Contact do
       {:ok, %Finch.Response{status: 201, body: body}} ->
         {:ok, body}
 
-      {:ok, %Finch.Response(status: 404, body: body)} ->
+      {:ok, %Finch.Response{status: 404, body: body}} ->
         {:error, :not_found}
     end
    end
