@@ -21,6 +21,7 @@ defmodule Excalt.Vcard.ReqBuilder do
             Saxy.XML.element("D:displayname", [], ""),
             Saxy.XML.element("card:addressbook-description", [], ""),
             Saxy.XML.element("card:supported-address-data", [], ""),
+            Saxy.XML.element("cs:getctag", [], "")
           ])
     )
     |> Saxy.encode!([])
@@ -40,11 +41,36 @@ defmodule Excalt.Vcard.ReqBuilder do
         "xmlns:card": "urn:ietf:params:xml:ns:carddav"
       ],
       Saxy.XML.element("D:prop", [], [
-            Saxy.XML.element("D:getetag", [], ""),
-            Saxy.XML.element("card:address-data", [], "")
+            Saxy.XML.element("card:address-data", [], ""),
+            Saxy.XML.element("D:getetag", [], "")
           ])
     )
     |> Saxy.encode!()
   end
 
-end
+  @doc """
+  get a single contantact by url
+  """
+  def get_contact(contact_url) do
+    Saxy.XML.element(
+      "card:addressbook-multiget",
+      [
+        "xmlns:D": "DAV:",
+        "xmlns:card": "urn:ietf:params:xml:ns:carddav"
+      ],
+      [
+      Saxy.XML.element("D:href", [], contact_url),
+      Saxy.XML.element("D:prop", [], [
+            Saxy.XML.element("card:address-data", [], ""),
+            Saxy.XML.element("D:getetag", [], "")
+          ]),
+      ]
+    )
+    |> Saxy.encode!()
+
+  end
+
+#  def get_contacts(multiple_urls) do
+
+#  end
+  end

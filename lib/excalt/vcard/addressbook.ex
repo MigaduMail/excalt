@@ -60,7 +60,7 @@ defmodule Excalt.Vcard.Addressbook do
 
 
 
-  defp build_authentication_header(username, password) do
+  def build_authentication_header(username, password) do
     encoded_auth = "#{username}:#{password}" |> Base.encode64()
     auth = "Basic " <> encoded_auth
 
