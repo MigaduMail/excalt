@@ -43,9 +43,8 @@ defmodule Excalt.Event do
     req_body = Excalt.XML.Builder.event_list(from, to)
     req_url = Excalt.Request.UrlHelper.build_url(server_url, username, calendar_name)
 
-    IO.inspect req_url: req_url
-    IO.inspect req_body: req_body
-
+    IO.inspect(req_url: req_url)
+    IO.inspect(req_body: req_body)
 
     finch_req =
       Finch.build(
@@ -58,9 +57,8 @@ defmodule Excalt.Event do
         req_body
       )
 
-    case Finch.request(finch_req, ExcaltFinch)
     # |> IO.inspect
-      do
+    case Finch.request(finch_req, ExcaltFinch) do
       {:ok,
        %Finch.Response{
          status: 207,
@@ -89,9 +87,8 @@ defmodule Excalt.Event do
        }} ->
         {:error, :not_found}
 
-        {:error, :not_found} ->
+      {:error, :not_found} ->
         {:error, :not_found}
-
     end
   end
 
@@ -324,6 +321,7 @@ defmodule Excalt.Event do
         {:error, :not_found}
     end
   end
+
   @doc """
   Updates a single event, given an uid of the event, the new version, and the etag.
   Will throw an error, if the etag has changed in the meantime.

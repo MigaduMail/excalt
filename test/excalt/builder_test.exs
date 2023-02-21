@@ -3,7 +3,8 @@ defmodule Excalt.BuilderTest do
   alias Excalt.XML.Builder
 
   test "XML request for requesting calendar collections from server" do
-    request = """
+    request =
+      """
       <?xml version="1.0"?>
       <D:propfind xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
       <D:prop>
@@ -20,13 +21,13 @@ defmodule Excalt.BuilderTest do
       """
       |> String.replace("\n", "")
 
-    assert request == Builder.calendar_list
+    assert request == Builder.calendar_list()
   end
 
   describe "XML request for events" do
     test "all events" do
-
     end
+
     test "timerange events"
   end
 end

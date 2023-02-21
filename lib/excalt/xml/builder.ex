@@ -9,21 +9,20 @@ defmodule Excalt.XML.Builder do
   """
   @spec calendar_list() :: String.t()
   def calendar_list do
-      Saxy.XML.element(
-        "D:propfind",
-        [
-          "xmlns:D": "DAV:",
-          "xmlns:C": "urn:ietf:params:xml:ns:caldav"
-        ],
-        Saxy.XML.element("D:prop", [], [
-          Saxy.XML.element("C:calendar-description", [], ""),
-          Saxy.XML.element("C:supported-calendar-component-set", [], ""),
-          Saxy.XML.element("D:displayname", [], ""),
-          Saxy.XML.element("C:calendar-timezone", [], "")
-        ])
-      )
-      |> Saxy.encode!([])
-
+    Saxy.XML.element(
+      "D:propfind",
+      [
+        "xmlns:D": "DAV:",
+        "xmlns:C": "urn:ietf:params:xml:ns:caldav"
+      ],
+      Saxy.XML.element("D:prop", [], [
+        Saxy.XML.element("C:calendar-description", [], ""),
+        Saxy.XML.element("C:supported-calendar-component-set", [], ""),
+        Saxy.XML.element("D:displayname", [], ""),
+        Saxy.XML.element("C:calendar-timezone", [], "")
+      ])
+    )
+    |> Saxy.encode!([])
   end
 
   @doc """
