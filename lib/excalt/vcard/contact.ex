@@ -28,8 +28,9 @@ defmodule Excalt.Vcard.Contact do
   def create(server_url, username, password, addressbook_name, vcf_text) do
     authentication = Excalt.Vcard.Addressbook.build_authentication_header(username, password)
     req_url = Excalt.Vcard.UrlHelper.build_url(server_url, username, addressbook_name)
-    req_url = "#{req_url}/#{contact_uuid}.vcf"
     req_body = vcf_text
+    contact_uuid = Elixir.UUID.uuid4
+    req_url = "#{req_url}/#{contact_uuid}.vcf"
 
     request = Finch.build("PUT", req_url, [authentication, {"If-None-Match", "*"}], req_body)
 
