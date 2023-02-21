@@ -47,14 +47,11 @@ defmodule Excalt.Vcard.Contact do
     authentication = Excalt.Vcard.Addressbook.build_authentication_header(username, password)
     req_url = Excalt.Vcard.UrlHelper.build_url(server_url, username, addressbook_name)
     req_url = "#{req_url}/#{contact_uuid}.vcf"
-    IO.inspect(req_url: req_url)
-    IO.inspect(etag: etag)
     req_body = vcf_text
 
     request =
       Finch.build("PUT", req_url, [authentication, {"Content-Type", "text/vcard"}], req_body)
 
-    IO.inspect(request)
 
     case Finch.request(request, ExcaltFinch) do
       {:ok, %Finch.Response{status: 201, body: body}} ->
