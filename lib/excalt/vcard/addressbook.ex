@@ -9,7 +9,6 @@ defmodule Excalt.Vcard.Addressbook do
   # Content types can be "text/vcard"(3.0 and 4.0) or "application/vcard+json"(4.0)
   defstruct name: nil, url: nil, description: nil, content_types: [], versions: []
 
-
   @doc """
   Getting all address books from the server.
   In most cases addressbooks are under url
@@ -17,7 +16,6 @@ defmodule Excalt.Vcard.Addressbook do
   With PROPFIND method we query the server to list us all addresbooks
   """
   def get_all_addressbooks(server_url, username, password) do
-
     request_body = Excalt.Vcard.ReqBuilder.list_all_addressbooks()
     request_url = Excalt.Vcard.UrlHelper.build_url(server_url, username)
     auth_header = build_authentication_header(username, password)
@@ -58,13 +56,10 @@ defmodule Excalt.Vcard.Addressbook do
     end
   end
 
-
-
   def build_authentication_header(username, password) do
     encoded_auth = "#{username}:#{password}" |> Base.encode64()
     auth = "Basic " <> encoded_auth
 
     {"Authorization", auth}
   end
-
-  end
+end

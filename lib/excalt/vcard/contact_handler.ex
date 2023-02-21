@@ -21,6 +21,7 @@ defmodule Excalt.Vcard.ContactHandler do
 
   def handle_event(:characters, content, {current_tag, contacts}) do
     content = String.trim(content)
+
     contacts =
       contacts
       |> handle_contacts(current_tag, ~r/href/, :url, content)
@@ -41,6 +42,7 @@ defmodule Excalt.Vcard.ContactHandler do
       contacts
     end
   end
+
   def handle_contacts(contacts, xml_el, regex, field, content) do
     has_element = String.match?(xml_el, regex)
     handle_contacts(contacts, field, has_element, content)
@@ -48,6 +50,7 @@ defmodule Excalt.Vcard.ContactHandler do
 
   def handle_contacts(contacts, _field, true, content) when length(content) < 0, do: contacts
   def handle_contacts(contacts, _field, false, _content), do: contacts
+
   def handle_contacts([current_contact | contacts], field, true, content) do
     contact = Map.put(current_contact, field, content)
     [contact | contacts]

@@ -28,29 +28,33 @@ defmodule Excalt.Vcard.AddressbookHandler do
   def handle_event(:start_element, {xml_element, attributes}, {_current_xml_el, addressbooks}) do
     # String.match?(tag_name, ~r/response$/)
     addressbooks =
-    if String.match?(xml_element, ~r/response/) do
-      # by returning this, we init an empty addressbook struct so we can
-      # populate it with related fields
-      [%Excalt.Vcard.Addressbook{} | addressbooks]
-    else
-      addressbooks
-    end
+      if String.match?(xml_element, ~r/response/) do
+        # by returning this, we init an empty addressbook struct so we can
+        # populate it with related fields
+        [%Excalt.Vcard.Addressbook{} | addressbooks]
+      else
+        addressbooks
+      end
 
     # Extract content types and version
     # Who knows we might need it later on.
     addressbooks =
-    if String.match?(xml_element, ~r/address-data-type/) do
-      [current_addressbook | addressbooks] = addressbooks
-      [content_type, version] = attributes
-      {"content-type", content_type} = content_type
-      {"version", version} = version
-      current_addressbook = append_content_type_and_version(current_addressbook, content_type, version)
-      [current_addressbook | addressbooks]
-    else
-      addressbooks
-    end
-      {:ok, {xml_element, addressbooks}}
-   end
+      if String.match?(xml_element, ~r/address-data-type/) do
+        [current_addressbook | addressbooks] = addressbooks
+        [content_type, version] = attributes
+        {"content-type", content_type} = content_type
+        {"version", version} = version
+
+        current_addressbook =
+          append_content_type_and_version(current_addressbook, content_type, version)
+
+        [current_addressbook | addressbooks]
+      else
+        addressbooks
+      end
+
+    {:ok, {xml_element, addressbooks}}
+  end
 
   def handle_event(:end_element, _, addressbooks) do
     {:ok, addressbooks}
@@ -64,32 +68,53 @@ defmodule Excalt.Vcard.AddressbookHandler do
     content = String.trim(content)
 
     addressbooks = update_current_addressbook(current_tag, ~r/href/, :url, addressbooks, content)
-    addressbooks = update_current_addressbook(current_tag, ~r/displayname/, :name, addressbooks, content)
-    addressbooks = update_current_addressbook(current_tag, ~r/addressbook-descriptio/, :description, addressbooks, content)
 
+    addressbooks =
+      update_current_addressbook(current_tag, ~r/displayname/, :name, addressbooks, content)
 
-
+    addressbooks =
+      update_current_addressbook(
+        current_tag,
+        ~r/addressbook-descriptio/,
+        :description,
+        addressbooks,
+        content
+      )
 
     # return all new and updated addressbooks
     #
     {:ok, {current_tag, addressbooks}}
   end
+
   @doc """
   Updates current addressbooks based on the if xml_element exists.
   """
-  @spec update_current_addressbook(boolean(), atom(), List.t(), String.t()) :: [] | [%Excalt.Vcard.Addressbook{}]
+  @spec update_current_addressbook(boolean(), atom(), List.t(), String.t()) ::
+          [] | [%Excalt.Vcard.Addressbook{}]
   def update_current_addressbook(current_tag, regex, field, addressbooks, content) do
     String.match?(current_tag, regex) |> update_current_addressbook(field, addressbooks, content)
   end
+
   def update_current_addressbook(false, _field, addressbooks, _content), do: addressbooks
-  def update_current_addressbook(true, _field, addressbooks, content) when length(content) < 0, do: addressbooks
+
+  def update_current_addressbook(true, _field, addressbooks, content) when length(content) < 0,
+    do: addressbooks
+
   def update_current_addressbook(true, field, [current_addressbook | addressbooks], content) do
     updated_addressbook = Map.put(current_addressbook, field, content)
     [updated_addressbook | addressbooks]
   end
 
-  def append_content_type_and_version(%Excalt.Vcard.Addressbook{content_types: content_types, versions: versions} = current_addressbook, content_type, version) do
-   %{current_addressbook | content_types: [content_type | content_types], versions: [version | versions]}
+  def append_content_type_and_version(
+        %Excalt.Vcard.Addressbook{content_types: content_types, versions: versions} =
+          current_addressbook,
+        content_type,
+        version
+      ) do
+    %{
+      current_addressbook
+      | content_types: [content_type | content_types],
+        versions: [version | versions]
+    }
   end
-
 end

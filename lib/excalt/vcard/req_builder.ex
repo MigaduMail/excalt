@@ -15,18 +15,18 @@ defmodule Excalt.Vcard.ReqBuilder do
       "D:propfind",
       [
         "xmlns:D": "DAV:",
-        "xmlns:card": "urn:ietf:params:xml:ns:carddav", # the card namespace is something that will be returned from the server in the response, so for clarity, we name it card also
+        # the card namespace is something that will be returned from the server in the response, so for clarity, we name it card also
+        "xmlns:card": "urn:ietf:params:xml:ns:carddav"
       ],
       Saxy.XML.element("D:prop", [], [
-            Saxy.XML.element("D:displayname", [], ""),
-            Saxy.XML.element("card:addressbook-description", [], ""),
-            Saxy.XML.element("card:supported-address-data", [], ""),
-            Saxy.XML.element("cs:getctag", [], "")
-          ])
+        Saxy.XML.element("D:displayname", [], ""),
+        Saxy.XML.element("card:addressbook-description", [], ""),
+        Saxy.XML.element("card:supported-address-data", [], ""),
+        Saxy.XML.element("cs:getctag", [], "")
+      ])
     )
     |> Saxy.encode!([])
   end
-
 
   @doc """
   Return the xml with all the contacts in the addressbook.
@@ -41,9 +41,9 @@ defmodule Excalt.Vcard.ReqBuilder do
         "xmlns:card": "urn:ietf:params:xml:ns:carddav"
       ],
       Saxy.XML.element("D:prop", [], [
-            Saxy.XML.element("card:address-data", [], ""),
-            Saxy.XML.element("D:getetag", [], "")
-          ])
+        Saxy.XML.element("card:address-data", [], ""),
+        Saxy.XML.element("D:getetag", [], "")
+      ])
     )
     |> Saxy.encode!()
   end
@@ -59,18 +59,17 @@ defmodule Excalt.Vcard.ReqBuilder do
         "xmlns:card": "urn:ietf:params:xml:ns:carddav"
       ],
       [
-      Saxy.XML.element("D:href", [], contact_url),
-      Saxy.XML.element("D:prop", [], [
-            Saxy.XML.element("card:address-data", [], ""),
-            Saxy.XML.element("D:getetag", [], "")
-          ]),
+        Saxy.XML.element("D:href", [], contact_url),
+        Saxy.XML.element("D:prop", [], [
+          Saxy.XML.element("card:address-data", [], ""),
+          Saxy.XML.element("D:getetag", [], "")
+        ])
       ]
     )
     |> Saxy.encode!()
-
   end
 
-#  def get_contacts(multiple_urls) do
+  #  def get_contacts(multiple_urls) do
 
-#  end
-  end
+  #  end
+end
