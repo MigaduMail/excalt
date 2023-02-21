@@ -43,8 +43,6 @@ defmodule Excalt.Event do
     req_body = Excalt.XML.Builder.event_list(from, to)
     req_url = Excalt.Request.UrlHelper.build_url(server_url, username, calendar_name)
 
-    IO.inspect(req_url: req_url)
-    IO.inspect(req_body: req_body)
 
     finch_req =
       Finch.build(
@@ -57,7 +55,6 @@ defmodule Excalt.Event do
         req_body
       )
 
-    # |> IO.inspect
     case Finch.request(finch_req, ExcaltFinch) do
       {:ok,
        %Finch.Response{
@@ -296,7 +293,6 @@ defmodule Excalt.Event do
         req_body
       )
 
-    IO.inspect(finch_req: finch_req)
 
     case Finch.request(finch_req, ExcaltFinch) do
       {:ok,
@@ -351,7 +347,6 @@ defmodule Excalt.Event do
         req_body
       )
 
-    IO.inspect(finch_req: finch_req)
 
     case Finch.request(finch_req, ExcaltFinch) do
       {:ok,
