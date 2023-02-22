@@ -15,14 +15,13 @@ defmodule Excalt.Vcard.ReqBuilder do
       "D:propfind",
       [
         "xmlns:D": "DAV:",
-        # the card namespace is something that will be returned from the server in the response, so for clarity, we name it card also
+        # the card namespace is something that will be returned from the our server in the response, so for clarity, we name it card also
         "xmlns:card": "urn:ietf:params:xml:ns:carddav"
       ],
       Saxy.XML.element("D:prop", [], [
         Saxy.XML.element("D:displayname", [], ""),
         Saxy.XML.element("card:addressbook-description", [], ""),
         Saxy.XML.element("card:supported-address-data", [], ""),
-        Saxy.XML.element("cs:getctag", [], "")
       ])
     )
     |> Saxy.encode!([])
