@@ -51,7 +51,7 @@ defmodule Excalt.Vcard.AddressbookHandler do
         [current_addressbook | addressbooks]
       else
         addressbooks
-      end
+       end
 
     {:ok, {xml_element, addressbooks}}
   end
@@ -66,7 +66,6 @@ defmodule Excalt.Vcard.AddressbookHandler do
     # addressbooks or it will be overwritten
     # take care
     content = String.trim(content)
-
     addressbooks = update_current_addressbook(current_tag, ~r/href/, :url, addressbooks, content)
 
     addressbooks =
@@ -75,7 +74,7 @@ defmodule Excalt.Vcard.AddressbookHandler do
     addressbooks =
       update_current_addressbook(
         current_tag,
-        ~r/addressbook-descriptio/,
+        ~r/addressbook-description/,
         :description,
         addressbooks,
         content
@@ -97,12 +96,18 @@ defmodule Excalt.Vcard.AddressbookHandler do
 
   def update_current_addressbook(false, _field, addressbooks, _content), do: addressbooks
 
-  def update_current_addressbook(true, _field, addressbooks, content) when length(content) < 0,
-    do: addressbooks
-
-  def update_current_addressbook(true, field, [current_addressbook | addressbooks], content) do
-    updated_addressbook = Map.put(current_addressbook, field, content)
-    [updated_addressbook | addressbooks]
+  def update_current_addressbook(
+        true,
+        field,
+        [current_addressbook | addressbooks] = all_addressbooks,
+        content
+      ) do
+    if String.length(content) <= 0 do
+      all_addressbooks
+    else
+      updated_addressbook = Map.put(current_addressbook, field, content)
+      [updated_addressbook | addressbooks]
+    end
   end
 
   def append_content_type_and_version(

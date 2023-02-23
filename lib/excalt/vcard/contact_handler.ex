@@ -48,11 +48,16 @@ defmodule Excalt.Vcard.ContactHandler do
     handle_contacts(contacts, field, has_element, content)
   end
 
-  def handle_contacts(contacts, _field, true, content) when length(content) < 0, do: contacts
   def handle_contacts(contacts, _field, false, _content), do: contacts
 
-  def handle_contacts([current_contact | contacts], field, true, content) do
-    contact = Map.put(current_contact, field, content)
-    [contact | contacts]
+  def handle_contacts(contacts, field, true, content) do
+    if String.length(content) <= 0 do
+      contacts
+    else
+      [current_contact | contacts] = contacts
+      current_contact = Map.put(current_contact, field, content)
+      [current_contact | contacts]
+    end
   end
+
 end
