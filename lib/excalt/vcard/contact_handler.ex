@@ -59,5 +59,4 @@ defmodule Excalt.Vcard.ContactHandler do
       [current_contact | contacts]
     end
   end
-
 end
