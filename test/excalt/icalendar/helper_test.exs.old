@@ -1,0 +1,123 @@
+defmodule Excalt.Icalendar.HelperTest do
+  use ExUnit.Case
+
+  describe "extract tags" do
+    test "extract from ical text" do
+      ics = """
+      BEGIN:VEVENT
+      DESCRIPTION:Escape from the world. Stare at some water.
+      COMMENT:Don't forget to take something to eat !
+      SUMMARY:Going fishing
+      DTEND:20151224T084500Z
+      DTSTART:20151224T083000Z
+      LOCATION:123 Fun Street\\, Toronto ON\\, Canada
+      STATUS:TENTATIVE
+      CATEGORIES:Fishing,Nature
+      CLASS:PRIVATE
+      GEO:43.6978819;-79.3810277
+      END:VEVENT
+      """
+
+  {_tag, _attr, dtstart_str} = Naiveical.Extractor.extract_contentline_by_tag(ics, "DTSTARt")
+
+      assert dtstart_str == "20151224T083000Z"
+    end
+
+    test "multiline description" do
+      ics = File.read!(Path.expand(Path.join(__DIR__, "files/multiline.ics")))
+
+      dtstart = Excalt.Icalendar.Helper.extract_tag(ics, "DTSTART")
+
+      assert dtstart == {"DTSTART", "VALUE=DATE", "19970317"}
+    end
+
+    test "tag with string properties" do
+      ics = "DESCRIPTION;ALTREP=\"cid:part2@example.org\":Hello\'98 in the world\\, there"
+
+      dtstart = Excalt.Icalendar.Helper.extract_tag(ics, "DESCRIPTION")
+
+      assert dtstart ==
+               {"DESCRIPTION", "ALTREP=\"cid:part2@example.org\"",
+                "Hello'98 in the world\\, there"}
+    end
+
+    test "line with multivalue properties" do
+      line = "mytag;one=p1,p2,p4;two=p5,p6:xxxxx:yyyyy"
+      dtstart = Excalt.Icalendar.Helper.extract_tag(line, "mytag")
+      assert dtstart == {"mytag", "one=p1,p2,p4;two=p5,p6:xxxxx", "yyyyy"}
+    end
+  end
+
+  describe "change the value of a field" do
+    test "change description in ics file" do
+      ics = """
+      BEGIN:VEVENT
+      DESCRIPTION:Escape from the world. Stare at some water.
+      COMMENT:Don't forget to take something to eat !
+      SUMMARY:Going fishing
+      DTEND:20151224T084500Z
+      DTSTART:20151224T083000Z
+      LOCATION:123 Fun Street\\, Toronto ON\\, Canada
+      STATUS:TENTATIVE
+      CATEGORIES:Fishing,Nature
+      CLASS:PRIVATE
+      GEO:43.6978819;-79.3810277
+      END:VEVENT
+      """
+
+      new_ics = Excalt.Icalendar.Helper.change_value(ics, "LOCATION", "here we go")
+
+      expected_ics = """
+      BEGIN:VEVENT
+      DESCRIPTION:Escape from the world. Stare at some water.
+      COMMENT:Don't forget to take something to eat !
+      SUMMARY:Going fishing
+      DTEND:20151224T084500Z
+      DTSTART:20151224T083000Z
+      LOCATION:here we go
+      STATUS:TENTATIVE
+      CATEGORIES:Fishing,Nature
+      CLASS:PRIVATE
+      GEO:43.6978819;-79.3810277
+      END:VEVENT
+      """
+
+      assert new_ics == expected_ics
+    end
+  end
+
+  describe "fold and unfold" do
+    test "ensure folding does create lines smaller 75 bytes" do
+      long_string =
+        "this is a very long line with much text content of interest about the world, and another very long description"
+
+      res = Excalt.Icalendar.Helper.fold(long_string)
+      [a, b] = String.split(res, "\r\n ")
+      assert byte_size(a) <= 75
+      assert byte_size(b) <= 75
+    end
+
+    test "folding and unfolding is equal for a long line" do
+      long_string =
+        "this is a very long line with much text content of interest about the world, and another very long description"
+
+      actual =
+        long_string
+        |> Excalt.Icalendar.Helper.fold()
+        |> Excalt.Icalendar.Helper.unfold()
+
+      assert actual == long_string
+    end
+
+    test "folding and unfolding is equal for a short line" do
+      short_string = "this is a very short string"
+
+      actual =
+        short_string
+        |> Excalt.Icalendar.Helper.fold()
+        |> Excalt.Icalendar.Helper.unfold()
+
+      assert actual == short_string
+    end
+  end
+end
