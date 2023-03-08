@@ -7,7 +7,7 @@ defmodule Excalt.Vcard.ParserTest do
       <?xml version="1.0" encoding="utf-8"?>
       <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:card="urn:ietf:params:xml:ns:carddav">
       <d:response>
-      <d:href>/addressbooks/ccdav@dimitrijedimitrijevic.com/business/</d:href>
+      <d:href>/addressbooks/test@email.com/business/</d:href>
       <d:propstat>
       <d:prop>
         <d:displayname>Business</d:displayname>
@@ -28,7 +28,7 @@ defmodule Excalt.Vcard.ParserTest do
       expected = [
         %Excalt.Vcard.Addressbook{
           name: "Business",
-          url: "/addressbooks/ccdav@dimitrijedimitrijevic.com/business/",
+          url: "/addressbooks/test@email.com/business/",
           description: nil,
           content_types: ["application/vcard+json", "text/vcard", "text/vcard"],
           versions: ["4.0", "4.0", "3.0"]
@@ -44,7 +44,7 @@ defmodule Excalt.Vcard.ParserTest do
         <?xml version="1.0"?>
         <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:card="urn:ietf:params:xml:ns:carddav">
         <d:response>
-        <d:href>/addressbooks/ccdav@dimitrijedimitrijevic.com/</d:href>
+        <d:href>/addressbooks/test@email.com/</d:href>
         <d:propstat>
         <d:prop>
           <d:displayname/>
@@ -55,7 +55,7 @@ defmodule Excalt.Vcard.ParserTest do
         </d:propstat>
         </d:response>
         <d:response>
-        <d:href>/addressbooks/ccdav@dimitrijedimitrijevic.com/business/</d:href>
+        <d:href>/addressbooks/test@email.com/business/</d:href>
         <d:propstat>
         <d:prop>
           <d:displayname>Business</d:displayname>
@@ -75,7 +75,7 @@ defmodule Excalt.Vcard.ParserTest do
         </d:propstat>
         </d:response>
         <d:response>
-        <d:href>/addressbooks/ccdav@dimitrijedimitrijevic.com/family/</d:href>
+        <d:href>/addressbooks/test@email.com/family/</d:href>
         <d:propstat>
         <d:prop>
           <d:displayname>Family</d:displayname>
@@ -104,21 +104,21 @@ defmodule Excalt.Vcard.ParserTest do
         %Excalt.Vcard.Addressbook{
           name: "Family",
           description: nil,
-          url: "/addressbooks/ccdav@dimitrijedimitrijevic.com/family/",
+          url: "/addressbooks/test@email.com/family/",
           content_types: ["application/vcard+json", "text/vcard", "text/vcard"],
           versions: ["4.0", "4.0", "3.0"]
         },
         %Excalt.Vcard.Addressbook{
           name: "Business",
           description: nil,
-          url: "/addressbooks/ccdav@dimitrijedimitrijevic.com/business/",
+          url: "/addressbooks/test@email.com/business/",
           content_types: ["application/vcard+json", "text/vcard", "text/vcard"],
           versions: ["4.0", "4.0", "3.0"]
         },
         %Excalt.Vcard.Addressbook{
           name: nil,
           description: nil,
-          url: "/addressbooks/ccdav@dimitrijedimitrijevic.com/",
+          url: "/addressbooks/test@email.com/",
           content_types: [],
           versions: []
         }
