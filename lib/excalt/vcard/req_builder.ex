@@ -71,12 +71,10 @@ defmodule Excalt.Vcard.ReqBuilder do
   # Expect multiple urls in a form of list of strings
   # e.g. ["url1", "url2", "url3"]
   def get_contacts(multiple_urls) do
-    # multiple_contacts_urls = build_multiple_xml_href_elements(multiple_urls)
     xhref_elements = build_multiple_xml_href_elements(multiple_urls)
 
     xml_elements =
       [
-        # Multiple contanct elemetns
         Saxy.XML.element("D:prop", [], [
           Saxy.XML.element("card:address-data", [], ""),
           Saxy.XML.element("D:getetag", [], "")
