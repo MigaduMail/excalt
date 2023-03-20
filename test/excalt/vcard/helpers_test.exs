@@ -13,5 +13,5 @@ defmodule Excalt.Vcard.HelpersTest do
 
       assert actual == expected
     end
-   end
+  end
 end

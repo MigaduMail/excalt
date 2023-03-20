@@ -93,6 +93,27 @@ defmodule Excalt.Vcard.ReqBuilder do
     |> Saxy.encode!()
   end
 
+  @doc """
+  Getting only etags from the server and comparing to one we
+  already have can save us a ton of bandwith. The server should return the
+  response off all etags and urls from the addressbook, so we can compare which
+  of them are created/updated/deleted by other clients, and we can update our
+  local addressbook with newest changes.
+  """
+  def get_etags() do
+    Saxy.XML.element(
+      "card:addressbook-query",
+      [
+        "xmlns:D": "DAV:",
+        "xmlns:card": "urn:ietf:params:xml:ns:carddav"
+      ],
+      Saxy.XML.element("D:prop", [], [
+        Saxy.XML.element("D:getetag", [], "")
+      ])
+    )
+    |> Saxy.encode!()
+  end
+
   defp build_multiple_xml_href_elements(urls) do
     Enum.map(urls, fn url -> Saxy.XML.element("D:href", [], url) end)
   end
