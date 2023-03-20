@@ -1,4 +1,7 @@
 defmodule Excalt.Vcard.Helpers do
+  @moduledoc """
+  Helper functions
+  """
   @doc """
   Build basic authentication header with encoded username and password.
   """
