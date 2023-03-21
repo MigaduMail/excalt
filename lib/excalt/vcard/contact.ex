@@ -71,7 +71,12 @@ defmodule Excalt.Vcard.Contact do
     case Finch.request(request, ExcaltFinch) do
       {:ok, %Finch.Response{status: 201, body: _body, headers: headers}} ->
         etag = Excalt.Helpers.Request.extract_from_header(headers, "etag")
-        {:ok, etag}
+        if etag == "" do
+          {etag, contact} = get_changed_contact_raw(authentication, req_url)
+          {:ok, etag, contact}
+        else
+          {:ok, etag}
+        end
 
       {:ok, %Finch.Response{status: 404, body: _body}} ->
         {:error, :not_found}
