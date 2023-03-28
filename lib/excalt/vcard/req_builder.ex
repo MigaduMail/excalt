@@ -48,7 +48,7 @@ defmodule Excalt.Vcard.ReqBuilder do
   end
 
   @doc """
-  get a single contantact by providing url from the list of contacts from the addressbook
+  Get a single contact by providing url from the list of contacts from the addressbook.
   """
   def get_contact(contact_url) do
     Saxy.XML.element(

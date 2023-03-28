@@ -1,6 +1,6 @@
 defmodule Excalt.Vcard.UrlHelper do
   @moduledoc """
-  Building urls for carrdav requests.
+  Building urls for carddav requests.
   """
 
   @spec build_url(server_url :: String.t(), username :: String.t()) :: String.t()
