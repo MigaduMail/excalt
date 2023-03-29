@@ -37,6 +37,12 @@ defmodule Excalt.Vcard.Contact do
       {:ok, %Finch.Response{status: 404, body: _}} ->
         {:error, :not_found}
 
+      {:ok, %Finch.Response{status: 401}} ->
+        {:error, :wrong_credentials}
+
+      {:ok, %Finch.Response{status: 500}} ->
+        {:error, :bad_request}
+
       _ ->
         :error
     end
@@ -44,21 +50,25 @@ defmodule Excalt.Vcard.Contact do
 
   @doc """
   Creates a new contact, VCF text should be a valid VCARD text
-  If the contact already exists, and we try to do multiple creation of the same contact, the response code 201 is returned but the etag is not changed.
+  If the VCARD contact already exists, and multiple creation of the same contact is issued, the response code 201 is returned, the contact is created but the etag is not changed,
+  which means that the same VCARD exists on the server, but it is not overwritten by the server.
+  In that case the client is responsible for merging contacts with the same etag.
+  The client is also responsible to determine the UUID of the contact.
+  See(RFC6352 Section 6.3.2)[https://www.rfc-editor.org/rfc/rfc6352#section-6.3.2]
   """
   @spec create(
           server_url :: String.t(),
           username :: String.t(),
           password :: String.t(),
           addressbook_name :: String.t(),
+          uuid :: String.t(),
           vcf_text :: String.t()
         ) :: {:ok, etag :: String.t()} | {:error, any()}
-  def create(server_url, username, password, addressbook_name, vcf_text) do
+  def create(server_url, username, password, addressbook_name, uuid, vcf_text) do
     authentication = Excalt.Vcard.Helpers.build_authentication_header(username, password)
     req_url = Excalt.Vcard.UrlHelper.build_url(server_url, username, addressbook_name)
     req_body = vcf_text
-    contact_uuid = Elixir.UUID.uuid4()
-    req_url = "#{req_url}/#{contact_uuid}.vcf"
+    req_url = "#{req_url}/#{uuid}.vcf"
 
     request =
       Finch.build(
@@ -71,12 +81,30 @@ defmodule Excalt.Vcard.Contact do
     case Finch.request(request, ExcaltFinch) do
       {:ok, %Finch.Response{status: 201, body: _body, headers: headers}} ->
         etag = Excalt.Helpers.Request.extract_from_header(headers, "etag")
+
         if etag == "" do
-          {etag, contact} = get_changed_contact_raw(authentication, req_url)
-          {:ok, etag, contact}
+          {:ok, :success, :no_etag}
         else
-          {:ok, etag}
+          {:ok, :success, etag}
         end
+
+      {:ok, %Finch.Response{status: 204, headers: headers}} ->
+        etag = Excalt.Helpers.Request.extract_from_header(headers, "etag")
+
+        if etag == "" do
+          {:ok, :success, :no_etag}
+        else
+          {:ok, :success, etag}
+        end
+
+      {:ok, %Finch.Response{status: 401}} ->
+        {:error, :wrong_credentials}
+
+      {:ok, %Finch.Response{status: 415}} ->
+        {:error, :format_not_supported}
+
+      {:ok, %Finch.Response{status: 412}} ->
+        {:error, :precondition_failed}
 
       {:ok, %Finch.Response{status: 404, body: _body}} ->
         {:error, :not_found}
@@ -91,10 +119,10 @@ defmodule Excalt.Vcard.Contact do
   """
   @spec update(String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), String.t()) ::
           {:ok, any()} | {:error, any()}
-  def update(server_url, username, password, addressbook_name, etag, contact_url_id, vcf_text) do
+  def update(server_url, username, password, addressbook_name, etag, contact_url, vcf_text) do
     authentication = Excalt.Vcard.Helpers.build_authentication_header(username, password)
     req_url = Excalt.Vcard.UrlHelper.build_url(server_url, username, addressbook_name)
-    req_url = "#{req_url}/#{contact_url_id}"
+    req_url = "#{req_url}/#{contact_url}"
 
     request =
       Finch.build(
@@ -107,14 +135,21 @@ defmodule Excalt.Vcard.Contact do
     case Finch.request(request, ExcaltFinch) do
       {:ok, %Finch.Response{status: 204, body: _body, headers: headers}} ->
         etag = Excalt.Helpers.Request.extract_from_header(headers, "etag")
-        # In case the server did not returned etag we need to fetch the
-        # contact again to see how the server made changes.
+
         if etag == "" do
-          {etag, contact} = get_changed_contact_raw(authentication, req_url)
-          {:ok, etag, contact}
+          {:ok, :success, :no_etag}
         else
-          {:ok, etag}
+          {:ok, :success, etag}
         end
+
+      {:ok, %Finch.Response{status: 401}} ->
+        {:error, :wrong_credentials}
+
+      {:ok, %Finch.Response{status: 415}} ->
+        {:error, :format_not_supported}
+
+      {:ok, %Finch.Response{status: 412}} ->
+        {:error, :precondition_failed}
 
       {:ok, %Finch.Response{status: 404, body: _body}} ->
         {:error, :not_found}
@@ -137,12 +172,17 @@ defmodule Excalt.Vcard.Contact do
     req_url = Excalt.Vcard.UrlHelper.build_url(server_url, username, addressbook_name)
     req_url = "#{req_url}/#{contact_url_id}"
 
-    request = Finch.build("DELETE", req_url, [authentication, {"If-Match", etag}], "")
+    request = Finch.build("DELETE", req_url, [authentication, {"If-Match", etag}])
 
     case Finch.request(request, ExcaltFinch) do
-      {:ok, %Finch.Response{status: 201, body: _body}} ->
-        # Return etag to delete the contact from persistent storage.
-        {:ok, etag}
+      {:ok, %Finch.Response{status: 204}} ->
+        {:ok, :success}
+
+      {:ok, %Finch.Response{status: 401}} ->
+        {:error, :wrong_credentials}
+
+      {:ok, %Finch.Response{status: 412}} ->
+        {:error, :precondition_failed}
 
       {:ok, %Finch.Response{status: 404, body: _body}} ->
         {:error, :not_found}
@@ -174,23 +214,6 @@ defmodule Excalt.Vcard.Contact do
 
       _ ->
         []
-    end
-  end
-
-  @spec get_changed_contact_raw(auth :: String.t(), req_url :: String.t()) ::
-          {String.t(), String.t()} | {nil, nil}
-  defp get_changed_contact_raw(auth, req_url) do
-    response =
-      Finch.build(:get, req_url, [auth, {"Depth", "1"}], "")
-      |> Finch.request(ExcaltFinch)
-
-    case response do
-      {:ok, %Finch.Response{status: 200, body: updated_vcard, headers: headers}} ->
-        etag = Excalt.Helpers.Request.extract_from_header(headers, "etag")
-        {etag, updated_vcard}
-
-      {:ok, %Finch.Response{status: _, body: ""}} ->
-        {nil, nil}
     end
   end
 end
