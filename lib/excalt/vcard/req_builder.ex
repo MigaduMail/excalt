@@ -3,10 +3,6 @@ defmodule Excalt.Vcard.ReqBuilder do
   Building XML requests for the CARDDAV SERVER
   """
 
-  # carrdav xml namespace "urn:ietf:params:xml:ns:carddav"
-  # xml element type "DAV:"
-  #
-
   @doc """
   Returns the urls of addressbooks with they
   """
@@ -68,8 +64,9 @@ defmodule Excalt.Vcard.ReqBuilder do
     |> Saxy.encode!()
   end
 
-  # Expect multiple urls in a form of list of strings
-  # e.g. ["url1", "url2", "url3"]
+  @doc """
+  XML request for getting contacts with data from server.
+  """
   def get_contacts(multiple_urls) do
     xhref_elements = build_multiple_xml_href_elements(multiple_urls)
 
