@@ -3,10 +3,6 @@ defmodule Excalt.Vcard.ReqBuilder do
   Building XML requests for the CARDDAV SERVER
   """
 
-  # carrdav xml namespace "urn:ietf:params:xml:ns:carddav"
-  # xml element type "DAV:"
-  #
-
   @doc """
   Returns the urls of addressbooks with they
   """
@@ -21,7 +17,7 @@ defmodule Excalt.Vcard.ReqBuilder do
       Saxy.XML.element("D:prop", [], [
         Saxy.XML.element("D:displayname", [], ""),
         Saxy.XML.element("card:addressbook-description", [], ""),
-        Saxy.XML.element("card:supported-address-data", [], ""),
+        Saxy.XML.element("card:supported-address-data", [], "")
       ])
     )
     |> Saxy.encode!([])
@@ -48,7 +44,7 @@ defmodule Excalt.Vcard.ReqBuilder do
   end
 
   @doc """
-  get a single contantact by url
+  Get a single contact by providing url from the list of contacts from the addressbook.
   """
   def get_contact(contact_url) do
     Saxy.XML.element(
@@ -68,7 +64,61 @@ defmodule Excalt.Vcard.ReqBuilder do
     |> Saxy.encode!()
   end
 
-  #  def get_contacts(multiple_urls) do
+  @doc """
+  XML request for getting contacts with data from server.
+  """
+  def get_contacts(multiple_urls) do
+    xhref_elements = build_multiple_xml_href_elements(multiple_urls)
 
-  #  end
+    xml_elements =
+      [
+        Saxy.XML.element("D:prop", [], [
+          Saxy.XML.element("card:address-data", [], ""),
+          Saxy.XML.element("D:getetag", [], "")
+        ])
+      ]
+      |> append_urls_to_elements(xhref_elements)
+
+    Saxy.XML.element(
+      "card:addressbook-multiget",
+      [
+        "xmlns:D": "DAV:",
+        "xmlns:card": "urn:ietf:params:xml:ns:carddav"
+      ],
+      xml_elements
+    )
+    |> Saxy.encode!()
+  end
+
+  @doc """
+  Getting only etags from the server and comparing to one we
+  already have can save us a ton of bandwith. The server should return the
+  response off all etags and urls from the addressbook, so we can compare which
+  of them are created/updated/deleted by other clients, and we can update our
+  local addressbook with newest changes.
+  """
+  def get_etags() do
+    Saxy.XML.element(
+      "card:addressbook-query",
+      [
+        "xmlns:D": "DAV:",
+        "xmlns:card": "urn:ietf:params:xml:ns:carddav"
+      ],
+      Saxy.XML.element("D:prop", [], [
+        Saxy.XML.element("D:getetag", [], "")
+      ])
+    )
+    |> Saxy.encode!()
+  end
+
+  defp build_multiple_xml_href_elements(urls) do
+    Enum.map(urls, fn url -> Saxy.XML.element("D:href", [], url) end)
+  end
+
+  defp append_urls_to_elements(elements, []), do: elements
+
+  defp append_urls_to_elements(elements, [url | rest]) do
+    [url | elements]
+    |> append_urls_to_elements(rest)
+  end
 end

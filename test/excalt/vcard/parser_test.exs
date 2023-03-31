@@ -160,20 +160,21 @@ defmodule Excalt.Vcard.ParserTest do
 
       parsed_response = Excalt.Vcard.Parser.parse_contacts_from_addressbook(response)
 
-      expected = [
-        %Excalt.Vcard.Contact{
-          url: "/home/bernard/addressbook/vcf102.vcf",
-          etag: "\"23ba4d-ff11fb\"",
-          vcard_raw:
-            "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:me\nUID:34222-232@example.com\nFN:Cyrus Daboo\nEMAIL:daboo@example.com\nEND:VCARD"
-        },
-        %Excalt.Vcard.Contact{
-          url: "/home/bernard/addressbook/vcf1.vcf",
-          etag: nil,
-          vcard_raw: nil
-        }
-      ]
-      |> Enum.sort
+      expected =
+        [
+          %Excalt.Vcard.Contact{
+            url: "/home/bernard/addressbook/vcf102.vcf",
+            etag: "\"23ba4d-ff11fb\"",
+            vcard_raw:
+              "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:me\nUID:34222-232@example.com\nFN:Cyrus Daboo\nEMAIL:daboo@example.com\nEND:VCARD"
+          },
+          %Excalt.Vcard.Contact{
+            url: "/home/bernard/addressbook/vcf1.vcf",
+            etag: nil,
+            vcard_raw: nil
+          }
+        ]
+        |> Enum.sort()
 
       assert {:ok, expected} == parsed_response
     end

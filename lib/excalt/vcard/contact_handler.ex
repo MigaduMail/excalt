@@ -35,6 +35,9 @@ defmodule Excalt.Vcard.ContactHandler do
     {:ok, contacts}
   end
 
+  @doc """
+  Handle xml element in contacts list based on the regex passed.
+  """
   def handle_contacts(contacts, xml_el, ~r/response/ = regex) do
     if String.match?(xml_el, regex) do
       [%Excalt.Vcard.Contact{} | contacts]

@@ -5,8 +5,6 @@ defmodule Excalt.Vcard.AddressbookHandler do
 
   @behaviour Saxy.Handler
 
-  # when we start document parsing the state is an empty list
-  # in this case it will be populated at the end with addressbooks
   def handle_event(:start_document, _prolog, addressbooks) do
     {:ok, addressbooks}
   end
@@ -15,29 +13,15 @@ defmodule Excalt.Vcard.AddressbookHandler do
     {:ok, addressbooks}
   end
 
-  # from the xml response we need to get
-  # href -> as url for the addressbook, the addressbook is missing
-  # if the <d:status> el  of the response is 404 not found
-  # displayname -> addressbook name on server | check if exists
-  # addressbook-description -> short addressbook description | check if exists
-  # supported-address-data -> can be a list of all supported server side vcards, if exists then we should also collect address-data-type in a list
-  #
-  #
-  #
 
   def handle_event(:start_element, {xml_element, attributes}, {_current_xml_el, addressbooks}) do
-    # String.match?(tag_name, ~r/response$/)
     addressbooks =
       if String.match?(xml_element, ~r/response/) do
-        # by returning this, we init an empty addressbook struct so we can
-        # populate it with related fields
         [%Excalt.Vcard.Addressbook{} | addressbooks]
       else
         addressbooks
       end
 
-    # Extract content types and version
-    # Who knows we might need it later on.
     addressbooks =
       if String.match?(xml_element, ~r/address-data-type/) do
         [current_addressbook | addressbooks] = addressbooks
@@ -51,7 +35,7 @@ defmodule Excalt.Vcard.AddressbookHandler do
         [current_addressbook | addressbooks]
       else
         addressbooks
-       end
+      end
 
     {:ok, {xml_element, addressbooks}}
   end
@@ -60,11 +44,7 @@ defmodule Excalt.Vcard.AddressbookHandler do
     {:ok, addressbooks}
   end
 
-  # Do things within the element <el> content </el>
   def handle_event(:characters, content, {current_tag, addressbooks}) do
-    # With each element we need to take care to pass already all
-    # addressbooks or it will be overwritten
-    # take care
     content = String.trim(content)
     addressbooks = update_current_addressbook(current_tag, ~r/href/, :url, addressbooks, content)
 
@@ -80,8 +60,6 @@ defmodule Excalt.Vcard.AddressbookHandler do
         content
       )
 
-    # return all new and updated addressbooks
-    #
     {:ok, {current_tag, addressbooks}}
   end
 
@@ -89,7 +67,7 @@ defmodule Excalt.Vcard.AddressbookHandler do
   Updates current addressbooks based on the if xml_element exists.
   """
   @spec update_current_addressbook(boolean(), atom(), List.t(), String.t()) ::
-          [] | [%Excalt.Vcard.Addressbook{}]
+          [] | [Excalt.Vcard.Addressbook.t()]
   def update_current_addressbook(current_tag, regex, field, addressbooks, content) do
     String.match?(current_tag, regex) |> update_current_addressbook(field, addressbooks, content)
   end
@@ -110,6 +88,9 @@ defmodule Excalt.Vcard.AddressbookHandler do
     end
   end
 
+  @doc """
+  Add content types and versions to parsed addressbooks.
+  """
   def append_content_type_and_version(
         %Excalt.Vcard.Addressbook{content_types: content_types, versions: versions} =
           current_addressbook,
